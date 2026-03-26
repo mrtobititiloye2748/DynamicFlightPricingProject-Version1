@@ -31,5 +31,12 @@ int is_valid_positive(double value);
 #define AISLE_FEE 20.0
 
 /* VALIDATION HELPERS */
+int is_valid_bool(int value) {
+    return value == 0 || value == 1;
+}
+
+int is_valid_positive(double value) {
+    return value >= 0;
+}
 
 /* FUNCTION DEFINITIONS */
