@@ -223,3 +223,57 @@ double online_checkin(double totalWeight, int totalBags) {
 
     return fee;
 }
+
+/*
+ * select_seat
+ * -----------
+ * Calculates the seat selection fee based on the passenger’s preferences.
+ *
+ * Rules:
+ *   • Window seat adds WINDOW_FEE
+ *   • Front-row seat adds FRONT_FEE
+ *   • Aisle seat adds AISLE_FEE
+ *
+ * Notes:
+ *   - All inputs must be valid booleans (0 or 1)
+ *   - Multiple preferences can be selected at once
+ *   - If no preferences are selected, the fee is 0
+ *
+ * Parameters:
+ *   wantsWindow -> 1 if passenger wants a window seat
+ *   wantsFront  -> 1 if passenger wants a front-row seat
+ *   wantsAisle  -> 1 if passenger wants an aisle seat
+ *
+ * Returns:
+ *   Total seat selection fee (double)
+ *   -1 if any input is invalid
+ */
+double select_seat(int wantsWindow, int wantsFront, int wantsAisle) {
+
+    // Validate all boolean inputs
+    if (!is_valid_bool(wantsWindow) ||
+        !is_valid_bool(wantsFront) ||
+        !is_valid_bool(wantsAisle)) {
+        return -1;
+    }
+
+    double fee = 0.0;
+
+    // Add fee for window seat
+    if (wantsWindow == 1) {
+        fee += WINDOW_FEE;
+    }
+
+    // Add fee for front-row seat
+    if (wantsFront == 1) {
+        fee += FRONT_FEE;
+    }
+
+    // Add fee for aisle seat
+    if (wantsAisle == 1) {
+        fee += AISLE_FEE;
+    }
+
+    return fee;
+}
+
