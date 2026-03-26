@@ -10,6 +10,25 @@ int is_valid_bool(int value);
 int is_valid_positive(double value);
 
 /* REALISTIC AIRLINE PRICING CONSTANTS */
+#define BASE_TICKET_PRICE 220.0
+
+#define WEEKEND_SURCHARGE 1.18
+#define TOURIST_SURCHARGE 1.30
+#define LOYALTY_DISCOUNT 0.88
+
+#define REFUND_FULL 1.00
+#define REFUND_MEDIUM 0.40
+#define REFUND_LOW 0.10
+#define REFUND_NONE 0.00
+#define LOYALTY_REFUND_BONUS 1.15
+
+#define FREE_BAG_WEIGHT 8.0
+#define OVERWEIGHT_FEE 85.0
+#define EXTRA_BAG_FEE 55.0
+
+#define WINDOW_FEE 25.0
+#define FRONT_FEE 45.0
+#define AISLE_FEE 20.0
 
 /* VALIDATION HELPERS */
 
