@@ -40,3 +40,27 @@ int is_valid_positive(double value) {
 }
 
 /* FUNCTION DEFINITIONS */
+double calculate_ticket_price(int isWeekend, int isTouristDestination, int hasLoyaltyProgram) {
+
+    if (!is_valid_bool(isWeekend) ||
+        !is_valid_bool(isTouristDestination) ||
+        !is_valid_bool(hasLoyaltyProgram)) {
+        return -1;
+    }
+
+    double price = BASE_TICKET_PRICE;
+
+    if (isWeekend == 1) {
+        price *= WEEKEND_SURCHARGE;
+    }
+
+    if (isTouristDestination == 1) {
+        price *= TOURIST_SURCHARGE;
+    }
+
+    if (hasLoyaltyProgram == 1) {
+        price *= LOYALTY_DISCOUNT;
+    }
+
+    return price;
+}
