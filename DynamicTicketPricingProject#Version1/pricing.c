@@ -1,47 +1,101 @@
 #include <stdio.h>
 
-/* FUNCTION DECLARATIONS */
+/* -------------------------------------------------------------
+   FUNCTION DECLARATIONS
+   ------------------------------------------------------------- */
+
+   /*
+    * Pricing-related calculations
+    */
 double calculate_ticket_price(int isWeekend, int isTouristDestination, int hasLoyaltyProgram);
 double calculate_refund(int daysBeforeTrip, int hasLoyaltyProgram);
 double online_checkin(double totalWeight, int totalBags);
 double select_seat(int wantsWindow, int wantsFront, int wantsAisle);
 
+/*
+ * Input validation helpers
+ */
 int is_valid_bool(int value);
 int is_valid_positive(double value);
 
-/* REALISTIC AIRLINE PRICING CONSTANTS */
+
+/* -------------------------------------------------------------
+   AIRLINE PRICING CONSTANTS
+   These values simulate realistic airline pricing behavior.
+   ------------------------------------------------------------- */
+
+   /* Base ticket cost before any modifiers */
 #define BASE_TICKET_PRICE 220.0
 
-#define WEEKEND_SURCHARGE 1.18
-#define TOURIST_SURCHARGE 1.30
-#define LOYALTY_DISCOUNT 0.88
+/* Ticket price multipliers */
+#define WEEKEND_SURCHARGE 1.18          // Higher demand on weekends
+#define TOURIST_SURCHARGE 1.30          // Popular destinations cost more
+#define LOYALTY_DISCOUNT 0.88           // Loyalty members get a discount
 
-#define REFUND_FULL 1.00
-#define REFUND_MEDIUM 0.40
-#define REFUND_LOW 0.10
-#define REFUND_NONE 0.00
-#define LOYALTY_REFUND_BONUS 1.15
+/* Refund percentages based on cancellation timing */
+#define REFUND_FULL 1.00                // 100% refund
+#define REFUND_MEDIUM 0.40              // 40% refund
+#define REFUND_LOW 0.10                 // 10% refund
+#define REFUND_NONE 0.00                // No refund
+#define LOYALTY_REFUND_BONUS 1.15       // Loyalty members get extra refund
 
-#define FREE_BAG_WEIGHT 8.0
-#define OVERWEIGHT_FEE 85.0
-#define EXTRA_BAG_FEE 55.0
+/* Baggage rules */
+#define FREE_BAG_WEIGHT 8.0             // Weight allowed before fees
+#define OVERWEIGHT_FEE 85.0             // Fee for exceeding weight
+#define EXTRA_BAG_FEE 55.0              // Fee per additional bag
 
+/* Seat selection fees */
 #define WINDOW_FEE 25.0
 #define FRONT_FEE 45.0
 #define AISLE_FEE 20.0
 
-/* VALIDATION HELPERS */
+
+/* -------------------------------------------------------------
+   VALIDATION HELPERS
+   These functions ensure inputs are valid before calculations.
+   ------------------------------------------------------------- */
+
+   /*
+    * Returns 1 if the value is a valid boolean (0 or 1),
+    * otherwise returns 0.
+    */
 int is_valid_bool(int value) {
     return value == 0 || value == 1;
 }
 
+/*
+ * Returns 1 if the value is non-negative.
+ * Used for weights, bag counts, and other numeric inputs.
+ */
 int is_valid_positive(double value) {
     return value >= 0;
 }
 
-/* FUNCTION DEFINITIONS */
+
+/* -------------------------------------------------------------
+   FUNCTION DEFINITIONS
+   ------------------------------------------------------------- */
+
+   /*
+    * calculate_ticket_price
+    * ----------------------
+    * Computes the final ticket price after applying:
+    *   - weekend surcharge
+    *   - tourist destination surcharge
+    *   - loyalty program discount
+    *
+    * Parameters:
+    *   isWeekend            -> 1 if flight is on a weekend, 0 otherwise
+    *   isTouristDestination -> 1 if destination is high-demand, 0 otherwise
+    *   hasLoyaltyProgram    -> 1 if customer is a loyalty member
+    *
+    * Returns:
+    *   Final ticket price (double)
+    *   -1 if any input is invalid
+    */
 double calculate_ticket_price(int isWeekend, int isTouristDestination, int hasLoyaltyProgram) {
 
+    // Validate all boolean inputs
     if (!is_valid_bool(isWeekend) ||
         !is_valid_bool(isTouristDestination) ||
         !is_valid_bool(hasLoyaltyProgram)) {
@@ -50,17 +104,80 @@ double calculate_ticket_price(int isWeekend, int isTouristDestination, int hasLo
 
     double price = BASE_TICKET_PRICE;
 
+    // Weekend flights cost more due to higher demand
     if (isWeekend == 1) {
         price *= WEEKEND_SURCHARGE;
     }
 
+    // Tourist destinations have higher pricing
     if (isTouristDestination == 1) {
         price *= TOURIST_SURCHARGE;
     }
 
+    // Loyalty members receive a discount
     if (hasLoyaltyProgram == 1) {
         price *= LOYALTY_DISCOUNT;
     }
 
     return price;
+}
+
+
+/*
+ * calculate_refund
+ * ----------------
+ * Determines the refund percentage based on:
+ *   - how early the cancellation occurs
+ *   - loyalty program membership
+ *
+ * Refund logic:
+ *   30+ days before trip  -> 100%
+ *   7–29 days             -> 40%
+ *   1–6 days              -> 10%
+ *   0 days                -> 0%
+ *
+ * Loyalty members receive a bonus multiplier,
+ * but refunds are capped at 100%.
+ *
+ * Parameters:
+ *   daysBeforeTrip     -> number of days before the flight
+ *   hasLoyaltyProgram  -> 1 if customer is a loyalty member
+ *
+ * Returns:
+ *   Refund percentage (0.0 to 1.0)
+ *   -1 if input is invalid
+ */
+double calculate_refund(int daysBeforeTrip, int hasLoyaltyProgram) {
+
+    // Validate inputs
+    if (daysBeforeTrip < 0 || !is_valid_bool(hasLoyaltyProgram)) {
+        return -1;
+    }
+
+    double refund = 0.0;
+
+    // Determine base refund amount
+    if (daysBeforeTrip >= 30) {
+        refund = REFUND_FULL;
+    }
+    else if (daysBeforeTrip >= 7) {
+        refund = REFUND_MEDIUM;
+    }
+    else if (daysBeforeTrip >= 1) {
+        refund = REFUND_LOW;
+    }
+    else {
+        refund = REFUND_NONE;
+    }
+
+    // Apply loyalty bonus (capped at 100%)
+    if (hasLoyaltyProgram == 1) {
+        refund *= LOYALTY_REFUND_BONUS;
+
+        if (refund > 1.0) {
+            refund = 1.0;
+        }
+    }
+
+    return refund;
 }
