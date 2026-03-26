@@ -181,3 +181,45 @@ double calculate_refund(int daysBeforeTrip, int hasLoyaltyProgram) {
 
     return refund;
 }
+
+/*
+ * online_checkin
+ * --------------
+ * Calculates baggage fees based on:
+ *   - total weight of all bags combined
+ *   - number of bags the passenger is checking in
+ *
+ * Rules:
+ *   • First 8 kg are free (FREE_BAG_WEIGHT)
+ *   • If total weight exceeds the free allowance → apply OVERWEIGHT_FEE
+ *   • If more than 1 bag is checked → each additional bag costs EXTRA_BAG_FEE
+ *
+ * Parameters:
+ *   totalWeight -> combined weight of all bags (must be >= 0)
+ *   totalBags   -> number of bags (must be >= 0)
+ *
+ * Returns:
+ *   Total baggage fee (double)
+ *   -1 if inputs are invalid
+ */
+double online_checkin(double totalWeight, int totalBags) {
+
+    // Validate inputs
+    if (!is_valid_positive(totalWeight) || totalBags < 0) {
+        return -1;
+    }
+
+    double fee = 0.0;
+
+    // Overweight fee applies if total weight exceeds free allowance
+    if (totalWeight > FREE_BAG_WEIGHT) {
+        fee += OVERWEIGHT_FEE;
+    }
+
+    // First bag is free; additional bags cost EXTRA_BAG_FEE each
+    if (totalBags > 1) {
+        fee += (totalBags - 1) * EXTRA_BAG_FEE;
+    }
+
+    return fee;
+}
