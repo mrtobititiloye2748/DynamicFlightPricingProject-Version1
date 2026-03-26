@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "pricing.c"   // temporary include for testing
+#include "pricing.h"
 
 int main() {
 
