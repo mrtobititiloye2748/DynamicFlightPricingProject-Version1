@@ -13,10 +13,11 @@ double online_checkin(double totalWeight, int totalBags);
 double select_seat(int wantsWindow, int wantsFront, int wantsAisle);
 
 /*
- * Input validation helpers
+ * Version 2 Input validation helpers
  */
-int is_valid_bool(int value);
-int is_valid_positive(double value);
+int get_valid_bool(const char* prompt);
+int get_valid_int(const char* prompt);
+double get_valid_double(const char* prompt);
 
 
 /* -------------------------------------------------------------
@@ -24,25 +25,24 @@ int is_valid_positive(double value);
    These values simulate realistic airline pricing behavior.
    ------------------------------------------------------------- */
 
-   /* Base ticket cost before any modifiers */
 #define BASE_TICKET_PRICE 220.0
 
-/* Ticket price multipliers */
-#define WEEKEND_SURCHARGE 1.18          // Higher demand on weekends
-#define TOURIST_SURCHARGE 1.30          // Popular destinations cost more
-#define LOYALTY_DISCOUNT 0.88           // Loyalty members get a discount
+   /* Ticket price multipliers */
+#define WEEKEND_SURCHARGE 1.18
+#define TOURIST_SURCHARGE 1.30
+#define LOYALTY_DISCOUNT 0.88
 
-/* Refund percentages based on cancellation timing */
-#define REFUND_FULL 1.00                // 100% refund
-#define REFUND_MEDIUM 0.40              // 40% refund
-#define REFUND_LOW 0.10                 // 10% refund
-#define REFUND_NONE 0.00                // No refund
-#define LOYALTY_REFUND_BONUS 1.15       // Loyalty members get extra refund
+/* Refund percentages */
+#define REFUND_FULL 1.00
+#define REFUND_MEDIUM 0.40
+#define REFUND_LOW 0.10
+#define REFUND_NONE 0.00
+#define LOYALTY_REFUND_BONUS 1.15
 
 /* Baggage rules */
-#define FREE_BAG_WEIGHT 8.0             // Weight allowed before fees
-#define OVERWEIGHT_FEE 85.0             // Fee for exceeding weight
-#define EXTRA_BAG_FEE 55.0              // Fee per additional bag
+#define FREE_BAG_WEIGHT 8.0
+#define OVERWEIGHT_FEE 85.0
+#define EXTRA_BAG_FEE 55.0
 
 /* Seat selection fees */
 #define WINDOW_FEE 25.0
@@ -56,7 +56,7 @@ int is_valid_positive(double value);
 
    /*
     * calculate_ticket_price
-    * ----------------------
+    * -----------------------------------------------------------
     * Computes the final ticket price after applying:
     *   - weekend surcharge
     *   - tourist destination surcharge
@@ -70,29 +70,27 @@ int is_valid_positive(double value);
     * Returns:
     *   Final ticket price (double)
     *   -1 if any input is invalid
+    * -----------------------------------------------------------
     */
 double calculate_ticket_price(int isWeekend, int isTouristDestination, int hasLoyaltyProgram) {
 
-    // Validate all boolean inputs
-    if (!is_valid_bool(isWeekend) ||
-        !is_valid_bool(isTouristDestination) ||
-        !is_valid_bool(hasLoyaltyProgram)) {
+    /* Validate boolean inputs */
+    if ((isWeekend != 0 && isWeekend != 1) ||
+        (isTouristDestination != 0 && isTouristDestination != 1) ||
+        (hasLoyaltyProgram != 0 && hasLoyaltyProgram != 1)) {
         return -1;
     }
 
     double price = BASE_TICKET_PRICE;
 
-    // Weekend flights cost more due to higher demand
     if (isWeekend == 1) {
         price *= WEEKEND_SURCHARGE;
     }
 
-    // Tourist destinations have higher pricing
     if (isTouristDestination == 1) {
         price *= TOURIST_SURCHARGE;
     }
 
-    // Loyalty members receive a discount
     if (hasLoyaltyProgram == 1) {
         price *= LOYALTY_DISCOUNT;
     }
@@ -103,7 +101,7 @@ double calculate_ticket_price(int isWeekend, int isTouristDestination, int hasLo
 
 /*
  * calculate_refund
- * ----------------
+ * -----------------------------------------------------------
  * Determines the refund percentage based on:
  *   - how early the cancellation occurs
  *   - loyalty program membership
@@ -124,17 +122,17 @@ double calculate_ticket_price(int isWeekend, int isTouristDestination, int hasLo
  * Returns:
  *   Refund percentage (0.0 to 1.0)
  *   -1 if input is invalid
+ * -----------------------------------------------------------
  */
 double calculate_refund(int daysBeforeTrip, int hasLoyaltyProgram) {
 
-    // Validate inputs
-    if (daysBeforeTrip < 0 || !is_valid_bool(hasLoyaltyProgram)) {
+    if (daysBeforeTrip < 0 ||
+        (hasLoyaltyProgram != 0 && hasLoyaltyProgram != 1)) {
         return -1;
     }
 
     double refund = 0.0;
 
-    // Determine base refund amount
     if (daysBeforeTrip >= 30) {
         refund = REFUND_FULL;
     }
@@ -148,10 +146,8 @@ double calculate_refund(int daysBeforeTrip, int hasLoyaltyProgram) {
         refund = REFUND_NONE;
     }
 
-    // Apply loyalty bonus (capped at 100%)
     if (hasLoyaltyProgram == 1) {
         refund *= LOYALTY_REFUND_BONUS;
-
         if (refund > 1.0) {
             refund = 1.0;
         }
@@ -160,41 +156,40 @@ double calculate_refund(int daysBeforeTrip, int hasLoyaltyProgram) {
     return refund;
 }
 
+
 /*
  * online_checkin
- * --------------
+ * -----------------------------------------------------------
  * Calculates baggage fees based on:
  *   - total weight of all bags combined
  *   - number of bags the passenger is checking in
  *
  * Rules:
- *   • First 8 kg are free (FREE_BAG_WEIGHT)
- *   • If total weight exceeds the free allowance → apply OVERWEIGHT_FEE
- *   • If more than 1 bag is checked → each additional bag costs EXTRA_BAG_FEE
+ *   • First 8 kg are free
+ *   • If total weight exceeds free allowance → OVERWEIGHT_FEE
+ *   • If more than 1 bag → each additional bag costs EXTRA_BAG_FEE
  *
  * Parameters:
- *   totalWeight -> combined weight of all bags (must be >= 0)
- *   totalBags   -> number of bags (must be >= 0)
+ *   totalWeight -> combined weight of all bags (>= 0)
+ *   totalBags   -> number of bags (>= 0)
  *
  * Returns:
  *   Total baggage fee (double)
  *   -1 if inputs are invalid
+ * -----------------------------------------------------------
  */
 double online_checkin(double totalWeight, int totalBags) {
 
-    // Validate inputs
-    if (!is_valid_positive(totalWeight) || totalBags < 0) {
+    if (totalWeight < 0 || totalBags < 0) {
         return -1;
     }
 
     double fee = 0.0;
 
-    // Overweight fee applies if total weight exceeds free allowance
     if (totalWeight > FREE_BAG_WEIGHT) {
         fee += OVERWEIGHT_FEE;
     }
 
-    // First bag is free; additional bags cost EXTRA_BAG_FEE each
     if (totalBags > 1) {
         fee += (totalBags - 1) * EXTRA_BAG_FEE;
     }
@@ -202,78 +197,71 @@ double online_checkin(double totalWeight, int totalBags) {
     return fee;
 }
 
+
 /*
  * select_seat
- * -----------
- * Calculates the seat selection fee based on the passenger’s preferences.
+ * -----------------------------------------------------------
+ * Calculates the seat selection fee based on preferences.
  *
  * Rules:
  *   • Window seat adds WINDOW_FEE
  *   • Front-row seat adds FRONT_FEE
  *   • Aisle seat adds AISLE_FEE
  *
- * Notes:
- *   - All inputs must be valid booleans (0 or 1)
- *   - Multiple preferences can be selected at once
- *   - If no preferences are selected, the fee is 0
- *
  * Parameters:
- *   wantsWindow -> 1 if passenger wants a window seat
- *   wantsFront  -> 1 if passenger wants a front-row seat
- *   wantsAisle  -> 1 if passenger wants an aisle seat
+ *   wantsWindow -> 1 if window seat requested
+ *   wantsFront  -> 1 if front-row seat requested
+ *   wantsAisle  -> 1 if aisle seat requested
  *
  * Returns:
  *   Total seat selection fee (double)
  *   -1 if any input is invalid
+ * -----------------------------------------------------------
  */
 double select_seat(int wantsWindow, int wantsFront, int wantsAisle) {
 
-    // Validate all boolean inputs
-    if (!is_valid_bool(wantsWindow) ||
-        !is_valid_bool(wantsFront) ||
-        !is_valid_bool(wantsAisle)) {
+    if ((wantsWindow != 0 && wantsWindow != 1) ||
+        (wantsFront != 0 && wantsFront != 1) ||
+        (wantsAisle != 0 && wantsAisle != 1)) {
         return -1;
     }
 
     double fee = 0.0;
 
-    // Add fee for window seat
-    if (wantsWindow == 1) {
-        fee += WINDOW_FEE;
-    }
-
-    // Add fee for front-row seat
-    if (wantsFront == 1) {
-        fee += FRONT_FEE;
-    }
-
-    // Add fee for aisle seat
-    if (wantsAisle == 1) {
-        fee += AISLE_FEE;
-    }
+    if (wantsWindow == 1) fee += WINDOW_FEE;
+    if (wantsFront == 1) fee += FRONT_FEE;
+    if (wantsAisle == 1) fee += AISLE_FEE;
 
     return fee;
 }
+
 
 /* -------------------------------------------------------------
    VERSION 2 INPUT VALIDATION HELPERS
    ------------------------------------------------------------- */
 
    /*
-       get_valid_bool
-       --------------
-       Prompts the user for a boolean value (0 or 1).
-       Repeats until valid input is entered.
-   */
+    * get_valid_bool
+    * -----------------------------------------------------------
+    * Prompts the user for a boolean value (0 or 1).
+    * Continues asking until a valid input is entered.
+    *
+    * Parameters:
+    *   prompt -> message displayed to the user
+    *
+    * Returns:
+    *   0 or 1 (int)
+    * -----------------------------------------------------------
+    */
 int get_valid_bool(const char* prompt) {
     int value;
     int result;
 
     do {
         printf("%s (0 or 1): ", prompt);
-        result = scanf("%d", &value);
+        result = scanf_s("%d", &value);
 
-        while (getchar() != '\n'); // clear input buffer
+        while (getchar() != '\n');
 
         if (result == 1 && (value == 0 || value == 1)) {
             return value;
@@ -284,21 +272,29 @@ int get_valid_bool(const char* prompt) {
     } while (1);
 }
 
+
 /*
-    get_valid_int
-    -------------
-    Prompts the user for a non-negative integer.
-    Repeats until valid input is entered.
-*/
+ * get_valid_int
+ * -----------------------------------------------------------
+ * Prompts the user for a non-negative integer.
+ * Continues asking until a valid input is entered.
+ *
+ * Parameters:
+ *   prompt -> message displayed to the user
+ *
+ * Returns:
+ *   A non-negative integer (int)
+ * -----------------------------------------------------------
+ */
 int get_valid_int(const char* prompt) {
     int value;
     int result;
 
     do {
         printf("%s: ", prompt);
-        result = scanf("%d", &value);
+        result = scanf_s("%d", &value);
 
-        while (getchar() != '\n'); // clear input buffer
+        while (getchar() != '\n');
 
         if (result == 1 && value >= 0) {
             return value;
@@ -309,21 +305,29 @@ int get_valid_int(const char* prompt) {
     } while (1);
 }
 
+
 /*
-    get_valid_double
-    ----------------
-    Prompts the user for a non-negative decimal number.
-    Repeats until valid input is entered.
-*/
+ * get_valid_double
+ * -----------------------------------------------------------
+ * Prompts the user for a non-negative decimal number.
+ * Continues asking until a valid input is entered.
+ *
+ * Parameters:
+ *   prompt -> message displayed to the user
+ *
+ * Returns:
+ *   A non-negative decimal value (double)
+ * -----------------------------------------------------------
+ */
 double get_valid_double(const char* prompt) {
     double value;
     int result;
 
     do {
         printf("%s: ", prompt);
-        result = scanf("%lf", &value);
+        result = scanf_s("%lf", &value);
 
-        while (getchar() != '\n'); // clear input buffer
+        while (getchar() != '\n');
 
         if (result == 1 && value >= 0) {
             return value;
@@ -333,4 +337,3 @@ double get_valid_double(const char* prompt) {
 
     } while (1);
 }
-
