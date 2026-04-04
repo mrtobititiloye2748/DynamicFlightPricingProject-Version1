@@ -51,28 +51,6 @@ int is_valid_positive(double value);
 
 
 /* -------------------------------------------------------------
-   VALIDATION HELPERS
-   These functions ensure inputs are valid before calculations.
-   ------------------------------------------------------------- */
-
-   /*
-    * Returns 1 if the value is a valid boolean (0 or 1),
-    * otherwise returns 0.
-    */
-int is_valid_bool(int value) {
-    return value == 0 || value == 1;
-}
-
-/*
- * Returns 1 if the value is non-negative.
- * Used for weights, bag counts, and other numeric inputs.
- */
-int is_valid_positive(double value) {
-    return value >= 0;
-}
-
-
-/* -------------------------------------------------------------
    FUNCTION DEFINITIONS
    ------------------------------------------------------------- */
 
@@ -275,5 +253,84 @@ double select_seat(int wantsWindow, int wantsFront, int wantsAisle) {
     }
 
     return fee;
+}
+
+/* -------------------------------------------------------------
+   VERSION 2 INPUT VALIDATION HELPERS
+   ------------------------------------------------------------- */
+
+   /*
+       get_valid_bool
+       --------------
+       Prompts the user for a boolean value (0 or 1).
+       Repeats until valid input is entered.
+   */
+int get_valid_bool(const char* prompt) {
+    int value;
+    int result;
+
+    do {
+        printf("%s (0 or 1): ", prompt);
+        result = scanf("%d", &value);
+
+        while (getchar() != '\n'); // clear input buffer
+
+        if (result == 1 && (value == 0 || value == 1)) {
+            return value;
+        }
+
+        printf("Invalid input. Please enter 0 or 1.\n");
+
+    } while (1);
+}
+
+/*
+    get_valid_int
+    -------------
+    Prompts the user for a non-negative integer.
+    Repeats until valid input is entered.
+*/
+int get_valid_int(const char* prompt) {
+    int value;
+    int result;
+
+    do {
+        printf("%s: ", prompt);
+        result = scanf("%d", &value);
+
+        while (getchar() != '\n'); // clear input buffer
+
+        if (result == 1 && value >= 0) {
+            return value;
+        }
+
+        printf("Invalid input. Please enter a non-negative integer.\n");
+
+    } while (1);
+}
+
+/*
+    get_valid_double
+    ----------------
+    Prompts the user for a non-negative decimal number.
+    Repeats until valid input is entered.
+*/
+double get_valid_double(const char* prompt) {
+    double value;
+    int result;
+
+    do {
+        printf("%s: ", prompt);
+        result = scanf("%lf", &value);
+
+        while (getchar() != '\n'); // clear input buffer
+
+        if (result == 1 && value >= 0) {
+            return value;
+        }
+
+        printf("Invalid input. Please enter a non-negative number.\n");
+
+    } while (1);
 }
 
