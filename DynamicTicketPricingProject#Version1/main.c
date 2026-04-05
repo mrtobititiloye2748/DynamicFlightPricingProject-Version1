@@ -2,9 +2,18 @@
 #include "pricing.h"
 
 /* -------------------------------------------------------------
-   show_menu
+   wait_for_enter
    -------------------------------------------------------------
-   Displays the main menu options for the program.
+   Pauses the program until the user presses ENTER.
+   ------------------------------------------------------------- */
+void wait_for_enter() {
+    printf("\nPress ENTER to continue...");
+    while (getchar() != '\n');  // clear leftover input
+    getchar();                  // wait for actual ENTER
+}
+
+/* -------------------------------------------------------------
+   show_menu
    ------------------------------------------------------------- */
 void show_menu() {
     printf("\n==============================\n");
@@ -21,15 +30,6 @@ void show_menu() {
 
 /* -------------------------------------------------------------
    fill_passenger_info
-   -------------------------------------------------------------
-   Collects all required passenger information using the
-   Version 2 input validation helpers.
-
-   Parameters:
-       p -> pointer to Passenger struct to fill
-
-   Returns:
-       Nothing (struct is filled by reference)
    ------------------------------------------------------------- */
 void fill_passenger_info(Passenger* p) {
 
@@ -53,15 +53,6 @@ void fill_passenger_info(Passenger* p) {
 
 /* -------------------------------------------------------------
    run_full_booking_simulation
-   -------------------------------------------------------------
-   Runs all pricing calculations for a passenger and prints
-   a complete summary of all charges.
-
-   Parameters:
-       p -> Passenger struct containing all user inputs
-
-   Returns:
-       Nothing (prints full breakdown)
    ------------------------------------------------------------- */
 void run_full_booking_simulation(Passenger p) {
 
@@ -84,10 +75,6 @@ void run_full_booking_simulation(Passenger p) {
 
 /* -------------------------------------------------------------
    main
-   -------------------------------------------------------------
-   Main program loop for Version 2.
-   Displays a menu, collects user input, and calls the
-   appropriate pricing functions.
    ------------------------------------------------------------- */
 int main() {
 
@@ -106,6 +93,8 @@ int main() {
 
             double price = calculate_ticket_price(weekend, tourist, loyalty);
             printf("Ticket Price: $%.2f\n", price);
+
+            wait_for_enter();
             break;
         }
 
@@ -115,6 +104,8 @@ int main() {
 
             double refund = calculate_refund(days, loyalty);
             printf("Refund Percentage: %.2f%%\n", refund * 100);
+
+            wait_for_enter();
             break;
         }
 
@@ -124,6 +115,8 @@ int main() {
 
             double fee = online_checkin(weight, bags);
             printf("Baggage Fee: $%.2f\n", fee);
+
+            wait_for_enter();
             break;
         }
 
@@ -134,6 +127,8 @@ int main() {
 
             double fee = select_seat(window, front, aisle);
             printf("Seat Selection Fee: $%.2f\n", fee);
+
+            wait_for_enter();
             break;
         }
 
@@ -141,6 +136,8 @@ int main() {
             Passenger p;
             fill_passenger_info(&p);
             run_full_booking_simulation(p);
+
+            wait_for_enter();
             break;
         }
 
@@ -150,6 +147,7 @@ int main() {
 
         default:
             printf("Invalid choice. Try again.\n");
+            wait_for_enter();
         }
 
     } while (choice != 5);
