@@ -132,7 +132,7 @@ void load_bookings_from_file(const char* filename) {
     int loaded = 0;
 
     for (int i = 0; i < count; i++) {
-        int read = fscanf_s(fp, "%d %d %d %d %d %d %lf %d %d",
+        int read = fscanf(fp, "%d %d %d %d %d %d %lf %d %d",
             &temp.isWeekend,
             &temp.isTouristDestination,
             &temp.hasLoyaltyProgram,
@@ -219,8 +219,7 @@ int main() {
         case 6: {
             if (passengerCount >= MAX_PASSENGERS) {
                 printf("Passenger list is full. Cannot add more.\n");
-            }
-            else {
+            } else {
                 Passenger p;
                 fill_passenger_info(&p);
                 run_full_booking_simulation(p);
