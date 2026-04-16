@@ -2,13 +2,6 @@
 #include "pricing.h"
 
 /* -------------------------------------------------------------
-   GLOBAL DATA FOR VERSION 3
-   ------------------------------------------------------------- */
-
-Passenger passengers[MAX_PASSENGERS];
-int passengerCount = 0;
-
-/* -------------------------------------------------------------
    wait_for_enter
    ------------------------------------------------------------- */
 void wait_for_enter() {
@@ -20,18 +13,15 @@ void wait_for_enter() {
    show_menu
    ------------------------------------------------------------- */
 void show_menu() {
-    printf("\n==============================\n");
-    printf("      AIRLINE MENU (V3)\n");
-    printf("==============================\n");
+    printf("\n==========================\n");
+    printf("      AIRLINE MENU\n");
+    printf("==========================\n");
     printf("1. Calculate Ticket Price\n");
     printf("2. Calculate Refund\n");
     printf("3. Calculate Baggage Fees\n");
     printf("4. Calculate Seat Selection Fee\n");
     printf("5. Exit\n");
-    printf("6. Add Passenger (Full Booking)\n");
-    printf("7. Save Bookings to File\n");
-    printf("8. Load Bookings from File\n");
-    printf("9. Show Total Revenue\n");
+    printf("6. Full Booking Simulation\n");
     printf("==============================\n");
 }
 
@@ -74,87 +64,6 @@ void run_full_booking_simulation(Passenger p) {
     printf("Refund Percentage:     %.2f%%\n", refund * 100);
 
     printf("==============================\n");
-}
-
-/* -------------------------------------------------------------
-   save_bookings_to_file
-   ------------------------------------------------------------- */
-void save_bookings_to_file(const char* filename) {
-    FILE* fp = NULL;
-    errno_t err = fopen_s(&fp, filename, "w");
-
-    if (err != 0 || fp == NULL) {
-        printf("Error: could not open file for writing.\n");
-        return;
-    }
-
-    fprintf(fp, "%d\n", passengerCount);
-
-    for (int i = 0; i < passengerCount; i++) {
-        Passenger p = passengers[i];
-        fprintf(fp, "%d %d %d %d %d %d %.2f %d %d\n",
-            p.isWeekend,
-            p.isTouristDestination,
-            p.hasLoyaltyProgram,
-            p.wantsWindow,
-            p.wantsFront,
-            p.wantsAisle,
-            p.totalWeight,
-            p.totalBags,
-            p.daysBeforeTrip
-        );
-    }
-
-    fclose(fp);
-    printf("Bookings saved to file '%s'.\n", filename);
-}
-
-/* -------------------------------------------------------------
-   load_bookings_from_file
-   ------------------------------------------------------------- */
-void load_bookings_from_file(const char* filename) {
-    FILE* fp = NULL;
-    errno_t err = fopen_s(&fp, filename, "r");
-
-    if (err != 0 || fp == NULL) {
-        printf("Error: could not open file for reading.\n");
-        return;
-    }
-
-    int count;
-    if (fscanf_s(fp, "%d", &count) != 1 || count < 0 || count > MAX_PASSENGERS) {
-        printf("Error: invalid data in file.\n");
-        fclose(fp);
-        return;
-    }
-
-    Passenger temp;
-    int loaded = 0;
-
-    for (int i = 0; i < count; i++) {
-        int read = fscanf(fp, "%d %d %d %d %d %d %lf %d %d",
-            &temp.isWeekend,
-            &temp.isTouristDestination,
-            &temp.hasLoyaltyProgram,
-            &temp.wantsWindow,
-            &temp.wantsFront,
-            &temp.wantsAisle,
-            &temp.totalWeight,
-            &temp.totalBags,
-            &temp.daysBeforeTrip
-        );
-
-        if (read == 9) {
-            passengers[loaded++] = temp;
-        }
-        else {
-            printf("Warning: skipping invalid record in file.\n");
-        }
-    }
-
-    passengerCount = loaded;
-    fclose(fp);
-    printf("Loaded %d passenger(s) from file '%s'.\n", passengerCount, filename);
 }
 
 /* -------------------------------------------------------------
@@ -217,34 +126,9 @@ int main() {
         }
 
         case 6: {
-            if (passengerCount >= MAX_PASSENGERS) {
-                printf("Passenger list is full. Cannot add more.\n");
-            } else {
-                Passenger p;
-                fill_passenger_info(&p);
-                run_full_booking_simulation(p);
-                passengers[passengerCount++] = p;
-            }
-
-            wait_for_enter();
-            break;
-        }
-
-        case 7: {
-            save_bookings_to_file("bookings.txt");
-            wait_for_enter();
-            break;
-        }
-
-        case 8: {
-            load_bookings_from_file("bookings.txt");
-            wait_for_enter();
-            break;
-        }
-
-        case 9: {
-            double total = calculate_total_revenue(passengers, passengerCount);
-            printf("Total Revenue for all passengers: $%.2f\n", total);
+            Passenger p;
+            fill_passenger_info(&p);
+            run_full_booking_simulation(p);
             wait_for_enter();
             break;
         }

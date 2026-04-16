@@ -1,14 +1,6 @@
 #ifndef PRICING_H
 #define PRICING_H
 
-#define MAX_PASSENGERS 100
-
-/* -------------------------------------------------------------
-   Passenger Struct
-   -------------------------------------------------------------
-   Holds all user input data required for the full booking
-   simulation in Version 2.
-    */
 typedef struct {
     int isWeekend;
     int isTouristDestination;
@@ -24,19 +16,17 @@ typedef struct {
     int daysBeforeTrip;
 } Passenger;
 
-/* -------------------------------------------------------------
-   Pricing Function Declarations
-   ------------------------------------------------------------- */
-double calculate_ticket_price(int isWeekend, int isTouristDestination, int hasLoyaltyProgram);
-double calculate_refund(int daysBeforeTrip, int hasLoyaltyProgram);
-double online_checkin(double totalWeight, int totalBags);
-double select_seat(int wantsWindow, int wantsFront, int wantsAisle);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* -------------------------------------------------------------
-   Version 2 Input Validation Helpers
-   ------------------------------------------------------------- */
-int get_valid_bool(const char* prompt);
-int get_valid_int(const char* prompt);
-double get_valid_double(const char* prompt);
+	__declspec(dllexport) double calculate_ticket_price(int isWeekend, int isTouristDestination, int hasLoyaltyProgram);
+	__declspec(dllexport) double calculate_refund(int daysBeforeTrip, int hasLoyaltyProgram);
+	__declspec(dllexport) double online_checkin(double totalWeight, int totalBags);
+	__declspec(dllexport) double select_seat(int wantsWindow, int wantsFront, int wantsAisle);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
